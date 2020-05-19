@@ -35,41 +35,39 @@ def register(request):
 
 @login_required
 def youtube(request):
+    thumbnails = []
+    titles = []
+    context = []
     if request.method == "POST":
         channel_name = request.POST.get('fname')
         print(channel_name)
-        search_url = 'https://www.googleapis.com/youtube/v3/channels'
+        search_url = 'https://www.googleapis.com/youtube/v3/search'
 
         params = {
-            'part': 'snippet,contentDetails,statistics',
-            'forUsername': channel_name,
+            'part': 'snippet',
+            'type': 'channel',
+            'q': channel_name,
             'key': settings.YOUTUBE_DATA_API_KEY,
         }
 
         res_channel = requests.get(search_url, params=params)
-        playlist_id = res_channel.json()['items'][0]['contentDetails']['relatedPlaylists']['uploads']
-        playlist_url = 'https://www.googleapis.com/youtube/v3/playlistItems'
+        print(res_channel.text)
+        channel_id = res_channel.json()['items'][0]['id']['channelId']
+        playlist_url = 'https://www.googleapis.com/youtube/v3/search'
         params_playlist = {
-            'part': 'snippet,contentDetails',
-            'playlistId': playlist_id,
-            'key': settings.YOUTUBE_DATA_API_KEY
+            'part': 'snippet',
+            'channelId': channel_id,
+            'key': settings.YOUTUBE_DATA_API_KEY,
+            'order': 'date',
+            'maxResults': 10,
 
         }
 
         videos = []
-        next_page_token = None
-        # while 1:
-        #    res = requests.get(search_url,playlistId = playlist_id,
-        #                  part = 'snippet',
-        #                  maxresult='10',
-        #                       pageToken = next_page_token)
-        #    videos += res['items']
-        #    next_page_token = res['nextPageToken']
-        #
-        #    if next_page_token is None:
-        #     break
-        # print(videos)
-        res_playlist = requests.get(playlist_url, params=params_playlist)
-        print(res_playlist.text)
+        res_videos = requests.get(playlist_url, params=params_playlist)
 
-    return render(request, 'users/youtube.html')
+        for i in range(10):
+            titles.append(res_videos.json()['items'][i]['snippet']['title'])
+            thumbnails.append(res_videos.json()['items'][i]['snippet']['thumbnails']['medium']['url'])
+        context = zip(thumbnails, titles)
+    return render(request, 'users/youtube.html', {'context': context})

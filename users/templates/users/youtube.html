@@ -1,10 +1,25 @@
 {% extends "users/base.html" %}
 {% block content %}
-<form action = "{% url 'youtube' %}" method = "post">
-    
-    <label>Enter youtube channel name:</label>
-    {% csrf_token %}
-    <input type="text" id="fname" name="fname"><br><br>
-    <input type="submit" value="Submit">
-  </form>
+{% load static %}
+    <link rel="stylesheet" href="{% static 'users/youtube-style.css' %}" type="text/css">
+    <div>
+        <form action="{% url 'youtube' %}" class="search-form" method="post">
+            {% csrf_token %}
+            <label class="label">Channel Name:</label>
+                <input type="text" id="fname" name="fname" class="search-bar"  />
+            <button type="submit" value="submit" class="search-button">submit</button>
+        </form>
+    </div>
+    <div class="videos">
+        {% for thumbnail,title in context %}
+        <div class="card" style="width: 18rem;">
+          <img class="card-img-top" src="{{ thumbnail }}" alt="Card image cap">
+          <div class="card-body">
+            <h5 class="card-title">{{ title }}</h5>
+            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <a href="#" class="btn btn-primary">Go somewhere</a>
+          </div>
+        </div>
+        {% endfor %}
+    </div>
 {% endblock content %}
