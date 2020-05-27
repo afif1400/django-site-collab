@@ -25,7 +25,7 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             form.save()
-            username = form.cleaned_data.get("username")
+            form.cleaned_data.get("username")
             messages.success(request, f'Your account has been created, please Log in.')
             return redirect('login')
     else:
@@ -62,8 +62,6 @@ def youtube(request):
             'maxResults': 10,
 
         }
-
-        videos = []
         res_videos = requests.get(playlist_url, params=params_playlist)
 
         for i in range(10):
